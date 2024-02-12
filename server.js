@@ -12,15 +12,14 @@ app.use(bodyParser.json());
 const User = require('./models/user');
 const Book = require('./models/book');
 const userList = require('./models/userlist');
-// const userlist = require('./models/userlist');
 
 mongoose.connect('mongodb+srv://neutrontiwari:Abcd1234@clustervaibhav.t7k7ibv.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
-        console.log('Connected to MongoDB');
+     console.log('Connected to MongoDB');
     })
     .catch(err => {
-        console.error('Error connecting to MongoDB', err);
-    });
+     console.error('Error connecting to MongoDB', err);
+});
 
 // Authentication middleware
 const authenticateUser = async (req, res, next) => {
@@ -38,15 +37,15 @@ const authenticateUser = async (req, res, next) => {
     }
 };
 
-// Routes
+
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, email, phone, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ name, email, phone, password: hashedPassword });
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const user = new User({ name:req.body.name, email:req.body.email, phone: req.body.phone, password: hashedPassword });
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Failed to register user' });
     }
 });
@@ -70,7 +69,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 //get list of all books in userlist - added by user
-app.get('/api/books/readingListbooks', async (req, res) => {
+app.get('/api/books/readingListbooks',authenticateUser, async (req, res) => {
     try {
         const books = await userList.find();
         res.status(200).json(books);
@@ -80,7 +79,7 @@ app.get('/api/books/readingListbooks', async (req, res) => {
 });
 
 //get list of all books on initital load
-app.get('/api/books/getAllBooks', async (req, res) => {
+app.get('/api/books/getAllBooks',authenticateUser, async (req, res) => {
     try {
         const books = await Book.find();
         res.status(200).json(books);
@@ -89,7 +88,7 @@ app.get('/api/books/getAllBooks', async (req, res) => {
     }
 });
 
-app.post('/api/books/addBookToUserlist', async (req, res) => {
+app.post('/api/books/addBookToUserlist',authenticateUser, async (req, res) => {
     try {
         const isbn = req.body.ISBN;
         // Find the book by its ISBN
@@ -104,26 +103,26 @@ app.post('/api/books/addBookToUserlist', async (req, res) => {
             status: book.status
         });
         await userlist.save();
-        updatedObject = {isadded: '1'};
-        // const book = await userList.findOne({ ISBN: req.params.isbn});
+        updatedObject = {isadded: 'yes'};
+    
         await Book.findByIdAndUpdate(book._id.toString(), {$set: updatedObject});
-        //book.status = 'in progress';
-        //await book.save();
-        res.send('Book moved to list successfully');
+        
+        res.status(200).json({message:'Book moved to list successfully'});
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({message:'Internal Server Error'});
     }
 });
 
 //delete books from userlist
-app.delete('/api/books/removeBookFormUserList/:id', async (req, res) => {
+app.delete('/api/books/removeBookFormUserList/:id',authenticateUser, async (req, res) => {
    
     try {
         const book = await userList.findOne({ ISBN: req.params.id });
+        const bookFromBookList = await Book.findOne({ ISBN: req.params.id });
         await userList.findByIdAndDelete(book._id.toString());
-        updatedObject = {isadded: '0'};
-        await Book.findByIdAndUpdate(book._id.toString(), {$set: updatedObject});
+        updatedObject = {isadded: 'no'};
+        await Book.findByIdAndUpdate(bookFromBookList._id.toString(), {$set: updatedObject});
         res.status(200).json({ message: 'Book deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete book' });
@@ -131,7 +130,7 @@ app.delete('/api/books/removeBookFormUserList/:id', async (req, res) => {
 });
 
 //update the status of books in userlist
-app.patch('/api/books/updateStatus/:isbn', async (req, res) => {
+app.patch('/api/books/updateStatus/:isbn',authenticateUser, async (req, res) => {
     try {
         const updatedStatus = req.body.status;
         updatedObject = {status: updatedStatus}
@@ -142,6 +141,20 @@ app.patch('/api/books/updateStatus/:isbn', async (req, res) => {
         res.status(500).json({ message: 'Failed to update book' });
     }
 });
+
+// fetch book status data
+app.get('/api/books/booksStatusData',authenticateUser, async (req, res) => {
+    try {
+      const unreadCount = await userList.countDocuments({ status: 'unread' });
+      const inProgressCount = await userList.countDocuments({ status: 'inProgress' });
+      const finishedCount = await userList.countDocuments({ status: 'finished' });
+  
+      res.status(200).json({ unreadCount, inProgressCount, finishedCount });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 // Start the server
 const PORT = process.env.PORT || 3000;
