@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 
 const userListSchema = new mongoose.Schema({
-    ISBN: { type: String, required: true },
-    name: { type: String, required: true },
-    author: { type: String, required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    book: { type: mongoose.Schema.Types.ObjectId, ref: 'Book', required: true },
     status: { type: String, enum: ['in progress', 'completed', 'unread'], default: 'unread' }
 });
 
