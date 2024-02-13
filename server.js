@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
+const connectDB = require('./db');
 app.use(bodyParser.json());
 //  app.use(cors());
 app.use(cors({ origin: 'http://localhost:4200' })); // Allow requests only from this origin
@@ -13,13 +13,7 @@ const User = require('./models/user');
 const Book = require('./models/book');
 const userList = require('./models/userlist');
 
-mongoose.connect('mongodb+srv://neutrontiwari:Abcd1234@clustervaibhav.t7k7ibv.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-     console.log('Connected to MongoDB');
-    })
-    .catch(err => {
-     console.error('Error connecting to MongoDB', err);
-});
+connectDB();
 
 // Authentication middleware
 const authenticateUser = async (req, res, next) => {
@@ -45,7 +39,6 @@ app.post('/api/register', async (req, res) => {
         await user.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: 'Failed to register user' });
     }
 });
@@ -131,7 +124,6 @@ app.post('/api/books/addBookToUserlist/:emailId',authenticateUser, async (req, r
         userOBj = await User.findOne({email: req.params.emailId});
         userObjId = userOBj._id;
         const book = await Book.findOne({ ISBN: isbn });
-        console.log(book._id);
         if (!book) return res.status(404).send('Book not found');
         const userlist = new userList({
             book:book._id,
@@ -168,7 +160,7 @@ app.patch('/api/books/updateStatus/:isbn',authenticateUser, async (req, res) => 
         userOBj = await User.findOne({email: emailId});
         bookOBj = await Book.findOne({ISBN: req.params.isbn});
         updatedObject = {status: updatedStatus}
-        const book = await userList.findOne({ book: bookOBj._id}, {user: userOBj._id});
+        const book = await userList.findOne({book: bookOBj._id,user: userOBj._id});
         await userList.findByIdAndUpdate(book._id.toString(), {$set: updatedObject});
         res.status(200).json({ message: 'Book updated successfully' });
     } catch (error) {
