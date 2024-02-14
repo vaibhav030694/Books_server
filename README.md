@@ -34,7 +34,7 @@ chmod +x setup.sh
 
 4. This will clone both repositories, install dependencies, and start the Angular frontend and Node.js server
    
-## Setting up manually - Installation
+## Setting up Server manually - Installation
 
 1. Clone the repository:
 
