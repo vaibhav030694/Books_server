@@ -76,7 +76,7 @@ This schema defines the structure of documents in the "Book" collection.
 It includes fields for ISBN (International Standard Book Number), name, author, status, and isadded.
 ISBN, name, and author fields are of type String and are required.
 Status field is of type String and has an enum constraint, meaning it can only have values from the specified list ('in progress', 'completed', 'unread'). It has a default value of 'unread'.
-isadded field is of type String and has a default value of '0'.
+isadded field is of type String and has a default value of 'no'.
 
 - **userSchema:**
 
