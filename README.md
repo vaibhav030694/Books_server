@@ -40,11 +40,14 @@ node server.js
 ```
 
 ## Usage
-- GET /books: Retrieve all books.
-- GET /books/:id: Retrieve a specific book by ID.
-- POST /books: Create a new book.
-- PUT /books/:id: Update a book by ID.
-- DELETE /books/:id: Delete a book by ID.
+- POST /api/register : Register a new user. 
+- POST /api/login : Login to the application using email and password.
+- GET /api/books/getAllBooks/:emailId : Retrieve all books.
+- GET /api/books/readingListbooks/:emailId : Retrieve a specific book by userID.
+- POST /api/books/addBookToUserlist/:emailId : Add a book from all books to reading list for logged in user.
+- DELETE /api/books/removeBookFormUserList/:emailId/:isbn :  Delete a book from reading list for logged in user.
+- PATCH /api/books/updateStatus/:isbn : Update status of a book in reading list for logged in user.
+- GET /api/books/booksStatusData/:emailId : Returns count of the status of books in users reading list
 
 ## Schema information 
 - **bookSchema:**
