@@ -49,7 +49,8 @@ cd Books_server
 ```
 3. Install dependencies:
 
-```npm install
+```
+npm install
 ```
 
 4. Start the server:
