@@ -13,9 +13,28 @@ Books_server is a simple RESTful API server built with Node.js and Express.js to
 ## Requirements
 
 - Node.js
+- npm
+- git
 - MongoDB
 
-## Installation
+## Setting up the project directory for frontend and server using bash script 
+
+1. Download setup.sh or copy the contents and create a file in your local directory.
+2. make the file executable using the following command:
+
+```
+chmod +x setup.sh
+```
+
+3. You can then run the script by executing the following command in your terminal.
+
+```
+./setup.sh
+```
+
+4. This will clone both repositories, install dependencies, and start the Angular frontend and Node.js server
+   
+## Setting up manually - Installation
 
 1. Clone the repository:
 
