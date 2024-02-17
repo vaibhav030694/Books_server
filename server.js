@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -6,8 +7,8 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const connectDB = require('./db');
 app.use(bodyParser.json());
-//  app.use(cors());
-app.use(cors({ origin: 'http://localhost:4200' })); // Allow requests only from this origin
+//app.use(cors());
+app.use(cors({ origin: 'http://localhost:3000' })); // Allow requests only from this origin
 
 const User = require('./models/user');
 const Book = require('./models/book');
@@ -183,6 +184,13 @@ app.get('/api/books/booksStatusData/:emailId',authenticateUser, async (req, res)
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+app.use(express.static(path.join(__dirname, 'dist/reading-list/browser/')));
+
+// Handle other routes and serve 'index.html' for Angular routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist/reading-list/browser/index.html'));
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;
